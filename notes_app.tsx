@@ -1,150 +1,391 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, FileText, Search, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-
-const NotesApp = () => {
-  const [notes, setNotes] = useState([]);
-  const [selectedNote, setSelectedNote] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [summary, setSummary] = useState('');
-
-  useEffect(() => {
-    const savedNotes = localStorage.getItem('notes');
-    if (savedNotes) {
-      setNotes(JSON.parse(savedNotes));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes));
-  }, [notes]);
-
-  const createNote = () => {
-    const newNote = {
-      id: Date.now(),
-      title: 'New Note',
-      content: '',
-      createdAt: new Date().toLocaleString(),
-    };
-    setNotes([...notes, newNote]);
-    setSelectedNote(newNote);
-  };
-
-  const updateNote = (id, updates) => {
-    const updatedNotes = notes.map(note =>
-      note.id === id ? { ...note, ...updates } : note
-    );
-    setNotes(updatedNotes);
-    if (selectedNote && selectedNote.id === id) {
-      setSelectedNote({ ...selectedNote, ...updates });
-    }
-  };
-
-  const deleteNote = (id) => {
-    const filteredNotes = notes.filter(note => note.id !== id);
-    setNotes(filteredNotes);
-    if (selectedNote && selectedNote.id === id) {
-      setSelectedNote(null);
-    }
-  };
-
-  const summarizeNote = async () => {
-    if (!selectedNote) return;
-    // Simulating AI summarization with a simple algorithm
-    // This is a placeholder. In a real application, you'd call an AI service here.
-    const words = selectedNote.content.split(' ');
-    const summaryWords = words.slice(0, 30).join(' ');
-    setSummary(`${summaryWords}... This is a concise summary to demonstrate scrolling. It continues with a bit more text to ensure we have enough content to necessitate scrolling in our popup.`);
-  };
-
-  const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <div className="flex h-screen bg-gradient-to-br from-purple-700 via-blue-800 to-gray-900">
-      <div className="w-1/4 p-4 overflow-y-auto">
-        <Button onClick={createNote} className="w-full mb-4 bg-green-500 hover:bg-green-600">
-          <Plus className="mr-2" /> Add Note
-        </Button>
-        {filteredNotes.map(note => (
-          <Card 
-            key={note.id} 
-            className={`mb-2 p-2 cursor-pointer ${selectedNote && selectedNote.id === note.id ? 'bg-blue-100' : 'bg-white'}`}
-            onClick={() => setSelectedNote(note)}
-          >
-            <h3 className="font-bold">{note.title}</h3>
-            <p className="text-sm text-gray-500">{note.createdAt}</p>
-          </Card>
-        ))}
-      </div>
-      <div className="flex-1 flex flex-col h-full bg-white">
-        {selectedNote ? (
-          <>
-            <div className="flex justify-between p-4 bg-white z-10">
-              <input
-                value={selectedNote.title}
-                onChange={(e) => updateNote(selectedNote.id, { title: e.target.value })}
-                className="text-2xl font-bold w-1/2 focus:outline-none"
-              />
-              <div className="flex space-x-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Search className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="flex space-x-2">
-                      <Input
-                        placeholder="Search notes..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button onClick={summarizeNote} variant="outline" size="icon">
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="space-y-2">
-                      <h3 className="font-bold">Summary</h3>
-                      <div className="h-[100px] w-full rounded-md border p-2 overflow-y-auto">
-                        <p>{summary || "Click to generate summary"}</p>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                <Button onClick={() => deleteNote(selectedNote.id)} variant="outline" size="icon">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              <textarea
-                className="w-full h-full p-2 focus:outline-none resize-none bg-transparent"
-                value={selectedNote.content}
-                onChange={(e) => updateNote(selectedNote.id, { content: e.target.value })}
-                placeholder="Start typing your note here..."
-              />
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Select a note or create a new one
-          </div>
-        )}
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <style>
+    body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+}
+.app-container {
+    display: flex;
+    height: 100%;
+    background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
+}
+.sidebar {
+    width: 25%;
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: white;
+    z-index: 10;
+}
+.note-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+.button {
+    background-color: #000000;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.icon-button {
+    background-color: transparent;
+    border: 1px solid #ccc;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.note-card {
+    background-color: white;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.note-card.selected {
+    background-color: #e6f3ff;
+}
+.note-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 50%;
+    border: none;
+    outline: none;
+}
+.note-textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+}
+.popup {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    z-index: 100;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.lock-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.pin-entry {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+.pin-input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+    </style>
+</head>
+<body>
+    <div id="lockScreen" class="lock-screen">
+        <div class="pin-entry">
+            <h2 id="pinTitle">Enter PIN</h2>
+            <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="Enter PIN">
+            <input type="password" id="confirmPinInput" class="pin-input" maxlength="4" placeholder="Confirm PIN" style="display: none;">
+            <button id="pinSubmit" class="button">Unlock</button>
+            <p id="pinError" style="color: red;"></p>
+        </div>
     </div>
-  );
-};
+    <div class="app-container">
+        <div class="sidebar">
+            <button id="addNote" class="button">Add Note</button>
+            <div id="notesList"></div>
+        </div>
+        <div class="main-content">
+            <div class="note-header">
+                <input type="text" id="noteTitle" class="note-title" placeholder="Note Title">
+                <div>
+                    <button id="searchButton" class="icon-button">
+                        <img src="search.svg" alt="Search" width="20" height="20">
+                    </button>
+                    <button id="summarizeButton" class="icon-button">
+                        <img src="summarization.svg" alt="Summarize" width="20" height="20">
+                    </button>
+                    <button id="deleteButton" class="icon-button">
+                        <img src="delete.svg" alt="Delete" width="20" height="20">
+                    </button>
+                    <button id="lockButton" class="icon-button">
+                        <img src="lock.svg" alt="Lock" width="20" height="20">
+                    </button>
+                    <button id="closeButton" class="icon-button">
+                        <img src="close.svg" alt="Close" width="20" height="20">
+                    </button>
+                </div>
+            </div>
+            <div class="note-content">
+                <textarea id="noteContent" class="note-textarea" placeholder="Start typing your note here..."></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="searchPopup" class="popup">
+        <input type="text" id="searchInput" placeholder="Search notes...">
+        <div id="searchResults"></div>
+    </div>
+    <div id="summaryPopup" class="popup">
+        <h3>Summary</h3>
+        <p id="summaryContent"></p>
+    </div>
+    <script>
+        let notes = [];
+        let selectedNote = null;
+        let pin = localStorage.getItem('notesAppPin') || '';
 
-export default NotesApp;
+        const notesList = document.getElementById('notesList');
+        const noteTitle = document.getElementById('noteTitle');
+        const noteContent = document.getElementById('noteContent');
+        const addNoteButton = document.getElementById('addNote');
+        const searchButton = document.getElementById('searchButton');
+        const summarizeButton = document.getElementById('summarizeButton');
+        const deleteButton = document.getElementById('deleteButton');
+        const lockButton = document.getElementById('lockButton');
+        const closeButton = document.getElementById('closeButton');
+        const searchPopup = document.getElementById('searchPopup');
+        const searchInput = document.getElementById('searchInput');
+        const summaryPopup = document.getElementById('summaryPopup');
+        const summaryContent = document.getElementById('summaryContent');
+        const lockScreen = document.getElementById('lockScreen');
+        const pinTitle = document.getElementById('pinTitle');
+        const pinInput = document.getElementById('pinInput');
+        const confirmPinInput = document.getElementById('confirmPinInput');
+        const pinSubmit = document.getElementById('pinSubmit');
+        const pinError = document.getElementById('pinError');
+
+        function initApp() {
+            loadNotes();
+            renderNotesList();
+            addEventListeners();
+            if (pin) {
+                showLockScreen();
+            } else {
+                showSetupPinScreen();
+            }
+        }
+
+        function loadNotes() {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                notes = JSON.parse(savedNotes);
+            }
+        }
+
+        function saveNotes() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        function renderNotesList() {
+            notesList.innerHTML = '';
+            notes.forEach(note => {
+                const noteElement = document.createElement('div');
+                noteElement.className = `note-card ${selectedNote && selectedNote.id === note.id ? 'selected' : ''}`;
+                noteElement.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <p>${note.createdAt}</p>
+                `;
+                noteElement.addEventListener('click', () => selectNote(note));
+                notesList.appendChild(noteElement);
+            });
+        }
+
+        function selectNote(note) {
+            selectedNote = note;
+            noteTitle.value = note.title;
+            noteContent.value = note.content;
+            renderNotesList();
+        }
+
+        function createNote() {
+            const newNote = {
+                id: Date.now(),
+                title: 'New Note',
+                content: '',
+                createdAt: new Date().toLocaleString()
+            };
+            notes.push(newNote);
+            saveNotes();
+            selectNote(newNote);
+            renderNotesList();
+        }
+
+        function updateNote() {
+            if (selectedNote) {
+                selectedNote.title = noteTitle.value;
+                selectedNote.content = noteContent.value;
+                saveNotes();
+                renderNotesList();
+            }
+        }
+
+        function deleteNote() {
+            if (selectedNote) {
+                notes = notes.filter(note => note.id !== selectedNote.id);
+                saveNotes();
+                selectedNote = null;
+                noteTitle.value = '';
+                noteContent.value = '';
+                renderNotesList();
+            }
+        }
+
+        function searchNotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredNotes = notes.filter(note =>
+                note.title.toLowerCase().includes(searchTerm) ||
+                note.content.toLowerCase().includes(searchTerm)
+            );
+            renderSearchResults(filteredNotes);
+        }
+
+        function renderSearchResults(filteredNotes) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+            if (filteredNotes.length === 0) {
+                searchResults.innerHTML = '<p>No results found</p>';
+            } else {
+                filteredNotes.forEach(note => {
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note-card';
+                    noteElement.innerHTML = `
+                        <h3>${note.title}</h3>
+                        <p>${note.content.substring(0, 50)}...</p>
+                    `;
+                    noteElement.addEventListener('click', () => {
+                        selectNote(note);
+                        searchPopup.style.display = 'none';
+                    });
+                    searchResults.appendChild(noteElement);
+                });
+            }
+        }
+
+        function summarizeNote() {
+            if (selectedNote) {
+                const words = selectedNote.content.split(' ');
+                const summaryWords = words.slice(0, 30).join(' ');
+                summaryContent.textContent = summaryWords + (words.length > 30 ? '...' : '');
+                summaryPopup.style.display = 'block';
+            } else {
+                alert('Please select a note to summarize');
+            }
+        }
+
+        function showLockScreen() {
+            lockScreen.style.display = 'flex';
+            pinTitle.textContent = 'Enter PIN';
+            pinInput.style.display = 'block';
+            confirmPinInput.style.display = 'none';
+            pinSubmit.textContent = 'Unlock';
+        }
+
+        function showSetupPinScreen() {
+            lockScreen.style.display = 'flex';
+            pinTitle.textContent = 'Set up PIN';
+            pinInput.style.display = 'block';
+            confirmPinInput.style.display = 'block';
+            pinSubmit.textContent = 'Set PIN';
+        }
+
+        function handlePinSubmit() {
+            const enteredPin = pinInput.value;
+            if (!pin) {
+                // Setting up new PIN
+                const confirmedPin = confirmPinInput.value;
+                if (enteredPin.length !== 4) {
+                    pinError.textContent = 'PIN must be 4 digits';
+                    return;
+                }
+                if (enteredPin !== confirmedPin) {
+                    pinError.textContent = 'PINs do not match';
+                    return;
+                }
+                pin = enteredPin;
+                localStorage.setItem('notesAppPin', pin);
+                lockScreen.style.display = 'none';
+            } else if (enteredPin === pin) {
+                // Correct PIN entered
+                lockScreen.style.display = 'none';
+            } else {
+                // Incorrect PIN
+                pinError.textContent = 'Incorrect PIN';
+            }
+        }
+
+        function addEventListeners() {
+            addNoteButton.addEventListener('click', createNote);
+            noteTitle.addEventListener('input', updateNote);
+            noteContent.addEventListener('input', updateNote);
+            searchButton.addEventListener('click', () => {
+                searchPopup.style.display = 'block';
+                searchInput.value = '';
+                searchInput.focus();
+                searchNotes();
+            });
+            summarizeButton.addEventListener('click', summarizeNote);
+            deleteButton.addEventListener('click', deleteNote);
+            lockButton.addEventListener('click', showLockScreen);
+            closeButton.addEventListener('click', () => {
+                selectedNote = null;
+                noteTitle.value = '';
+                noteContent.value = '';
+                renderNotesList();
+            });
+            searchInput.addEventListener('input', searchNotes);
+            pinSubmit.addEventListener('click', handlePinSubmit);
+            document.addEventListener('click', (e) => {
+                if (!searchPopup.contains(e.target) && e.target !== searchButton) {
+                    searchPopup.style.display = 'none';
+                }
+                if (!summaryPopup.contains(e.target) && e.target !== summarizeButton) {
+                    summaryPopup.style.display = 'none';
+                }
+            });
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
