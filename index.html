@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRAD NOTES</title>
+    <title>Notes App</title>
     <style>
         body, html {
             margin: 0;
@@ -88,9 +88,10 @@
             background-color: #e6f3ff;
         }
         .note-title {
-            font-size: 1.2rem;
+            font-size: 2rem;
             font-weight: bold;
             width: 100%;
+            color: #000000;
             border: none;
             outline: none;
             background-color: transparent;
@@ -101,7 +102,7 @@
             border: none;
             outline: none;
             resize: none;
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
         .popup {
             display: none;
@@ -155,18 +156,6 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
-        .welcome-message {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 2rem;
-            color: #333;
-        }
-        .welcome-prompt {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 1.2rem;
-            color: #666;
-        }
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
@@ -215,7 +204,7 @@
         </div>
         <div class="main-content">
             <div class="note-header">
-                <input type="none" id="noteTitle" class="note-title" placeholder="Welcome">
+                <input type="text" id="noteTitle" class="note-title" placeholder="Note Title">
                 <div>
                     <button id="searchButton" class="icon-button">
                         <img src="search.svg" alt="Search" width="20" height="20">
@@ -235,8 +224,6 @@
                 </div>
             </div>
             <div class="note-content">
-                <h1 id="welcomeMessage" class="welcome-message"></h1>
-                <p id="welcomePrompt" class="welcome-prompt"></p>
                 <textarea id="noteContent" class="note-textarea" placeholder="Start typing your note here..."></textarea>
             </div>
         </div>
@@ -253,7 +240,6 @@
         let notes = [];
         let selectedNote = null;
         let pin = localStorage.getItem('notesAppPin') || '';
-        let isFirstVisit = localStorage.getItem('notesAppFirstVisit') !== 'false';
 
         const notesList = document.getElementById('notesList');
         const noteTitle = document.getElementById('noteTitle');
@@ -276,8 +262,6 @@
         const pinError = document.getElementById('pinError');
         const menuButton = document.getElementById('menuButton');
         const sidebar = document.getElementById('sidebar');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const welcomePrompt = document.getElementById('welcomePrompt');
 
         function initApp() {
             loadNotes();
@@ -288,7 +272,6 @@
             } else {
                 showSetupPinScreen();
             }
-            showWelcomeMessage();
         }
 
         function loadNotes() {
@@ -321,7 +304,6 @@
             noteTitle.value = note.title;
             noteContent.value = note.content;
             renderNotesList();
-            hideWelcomeMessage();
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('open');
             }
@@ -338,7 +320,6 @@
             saveNotes();
             selectNote(newNote);
             renderNotesList();
-            hideWelcomeMessage();
         }
 
         function updateNote() {
@@ -358,7 +339,6 @@
                 noteTitle.value = '';
                 noteContent.value = '';
                 renderNotesList();
-                showWelcomeMessage();
             }
         }
 
