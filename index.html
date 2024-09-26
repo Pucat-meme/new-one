@@ -3,122 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes App</title>
+    <title>GRAD NOTES</title>
     <style>
-    body, html {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    height: 100%;
-}
-.app-container {
-    display: flex;
-    height: 100%;
-    background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
-}
-.sidebar {
-    width: 25%;
-    padding: 1rem;
-    overflow-y: auto;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-}
-.note-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    background-color: white;
-    z-index: 10;
-}
-.note-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-}
-.button {
-    background-color: #000000;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-.icon-button {
-    background-color: transparent;
-    border: 1px solid #ccc;
-    padding: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-}
-.note-card {
-    background-color: white;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    cursor: pointer;
-    border-radius: 4px;
-}
-.note-card.selected {
-    background-color: #e6f3ff;
-}
-.note-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    width: 50%;
-    border: none;
-    outline: none;
-}
-.note-textarea {
-    width: 100%;
-    height: 100%;
-    border: none;
-    outline: none;
-    resize: none;
-}
-.popup {
-    display: none;
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    z-index: 100;
-    border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.lock-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-.pin-entry {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    text-align: center;
-}
-.pin-input {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+        .app-container {
+            display: flex;
+            height: 100%;
+            background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
+        }
+        .sidebar {
+            width: 30%;
+            max-width: 300px;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            overflow: hidden;
+        }
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f0f0f0;
+            z-index: 10;
+        }
+        .note-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        .button {
+            background-color: #000000;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #2a2a2a;
+        }
+        .icon-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin: 0 5px;
+            transition: opacity 0.3s;
+        }
+        .icon-button:hover {
+            opacity: 0.7;
+        }
+        .note-card {
+            background-color: white;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .note-card:hover {
+            background-color: #f0f0f0;
+        }
+        .note-card.selected {
+            background-color: #e6f3ff;
+        }
+        .note-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            width: 100%;
+            border: none;
+            outline: none;
+            background-color: transparent;
+        }
+        .note-textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 1rem;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            z-index: 100;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom right, #9333ea, #2563eb, #111827);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .pin-entry {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+        }
+        .pin-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        #menuButton {
+            display: none;
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 2rem;
+            color: #333;
+        }
+        .welcome-prompt {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                max-width: none;
+                height: auto;
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: translateY(-100%);
+                z-index: 20;
+            }
+            .sidebar.open {
+                transform: translateY(0);
+            }
+            .main-content {
+                height: 100%;
+            }
+            #menuButton {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 30;
+            }
+        }
     </style>
 </head>
 <body>
@@ -131,14 +207,15 @@
             <p id="pinError" style="color: red;"></p>
         </div>
     </div>
+    <button id="menuButton">☰</button>
     <div class="app-container">
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <button id="addNote" class="button">Add Note</button>
             <div id="notesList"></div>
         </div>
         <div class="main-content">
             <div class="note-header">
-                <input type="text" id="noteTitle" class="note-title" placeholder="Note Title">
+                <input type="none" id="noteTitle" class="note-title" placeholder="Welcome">
                 <div>
                     <button id="searchButton" class="icon-button">
                         <img src="search.svg" alt="Search" width="20" height="20">
@@ -158,6 +235,8 @@
                 </div>
             </div>
             <div class="note-content">
+                <h1 id="welcomeMessage" class="welcome-message"></h1>
+                <p id="welcomePrompt" class="welcome-prompt"></p>
                 <textarea id="noteContent" class="note-textarea" placeholder="Start typing your note here..."></textarea>
             </div>
         </div>
@@ -174,6 +253,7 @@
         let notes = [];
         let selectedNote = null;
         let pin = localStorage.getItem('notesAppPin') || '';
+        let isFirstVisit = localStorage.getItem('notesAppFirstVisit') !== 'false';
 
         const notesList = document.getElementById('notesList');
         const noteTitle = document.getElementById('noteTitle');
@@ -194,6 +274,10 @@
         const confirmPinInput = document.getElementById('confirmPinInput');
         const pinSubmit = document.getElementById('pinSubmit');
         const pinError = document.getElementById('pinError');
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const welcomePrompt = document.getElementById('welcomePrompt');
 
         function initApp() {
             loadNotes();
@@ -204,6 +288,7 @@
             } else {
                 showSetupPinScreen();
             }
+            showWelcomeMessage();
         }
 
         function loadNotes() {
@@ -236,6 +321,10 @@
             noteTitle.value = note.title;
             noteContent.value = note.content;
             renderNotesList();
+            hideWelcomeMessage();
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
         }
 
         function createNote() {
@@ -249,6 +338,7 @@
             saveNotes();
             selectNote(newNote);
             renderNotesList();
+            hideWelcomeMessage();
         }
 
         function updateNote() {
@@ -268,6 +358,7 @@
                 noteTitle.value = '';
                 noteContent.value = '';
                 renderNotesList();
+                showWelcomeMessage();
             }
         }
 
@@ -375,6 +466,9 @@
             });
             searchInput.addEventListener('input', searchNotes);
             pinSubmit.addEventListener('click', handlePinSubmit);
+            menuButton.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+            });
             document.addEventListener('click', (e) => {
                 if (!searchPopup.contains(e.target) && e.target !== searchButton) {
                     searchPopup.style.display = 'none';
@@ -383,6 +477,48 @@
                     summaryPopup.style.display = 'none';
                 }
             });
+        }
+
+        function searchNotes() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredNotes = notes.filter(note =>
+                note.title.toLowerCase().includes(searchTerm) ||
+                note.content.toLowerCase().includes(searchTerm)
+            );
+            renderSearchResults(filteredNotes);
+        }
+
+        function renderSearchResults(filteredNotes) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+            if (filteredNotes.length === 0) {
+                searchResults.innerHTML = '<p>No results found</p>';
+            } else {
+                filteredNotes.forEach(note => {
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'note-card';
+                    noteElement.innerHTML = `
+                        <h3>${note.title}</h3>
+                        <p>${note.content.substring(0, 50)}...</p>
+                    `;
+                    noteElement.addEventListener('click', () => {
+                        selectNote(note);
+                        searchPopup.style.display = 'none';
+                    });
+                    searchResults.appendChild(noteElement);
+                });
+            }
+        }
+
+        function summarizeNote() {
+            if (selectedNote) {
+                const words = selectedNote.content.split(' ');
+                const summaryWords = words.slice(0, 30).join(' ');
+                summaryContent.textContent = summaryWords + (words.length > 30 ? '...' : '');
+                summaryPopup.style.display = 'block';
+            } else {
+                alert('Please select a note to summarize');
+            }
         }
 
         initApp();
