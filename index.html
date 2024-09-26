@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes App</title>
+    <title>PRO NOTES</title>
     <style>
         body, html {
             margin: 0;
@@ -88,7 +88,7 @@
             background-color: #e6f3ff;
         }
         .note-title {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             width: 100%;
             color: #000000;
@@ -102,7 +102,7 @@
             border: none;
             outline: none;
             resize: none;
-            font-size: 1.3rem;
+            font-size: 1rem;
         }
         .popup {
             display: none;
@@ -155,6 +155,10 @@
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 30;
         }
         @media (max-width: 768px) {
             .app-container {
@@ -163,25 +167,35 @@
             .sidebar {
                 width: 100%;
                 max-width: none;
-                height: auto;
+                height: 100%;
                 position: fixed;
                 top: 0;
                 left: 0;
-                transform: translateY(-100%);
+                transform: translateX(-100%);
                 z-index: 20;
             }
             .sidebar.open {
-                transform: translateY(0);
+                transform: translateX(0);
             }
             .main-content {
                 height: 100%;
             }
             #menuButton {
                 display: block;
-                position: fixed;
-                top: 10px;
-                left: 10px;
-                z-index: 30;
+            }
+            .note-header {
+                flex-wrap: wrap;
+            }
+            .note-title {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            .icon-button {
+                padding: 10px;
+            }
+            .popup {
+                width: 90%;
+                max-height: 90%;
             }
         }
     </style>
@@ -204,7 +218,7 @@
         </div>
         <div class="main-content">
             <div class="note-header">
-                <input type="text" id="noteTitle" class="note-title" placeholder="Note Title">
+                <input type="text" id="noteTitle" class="note-title" placeholder="Welcome!">
                 <div>
                     <button id="searchButton" class="icon-button">
                         <img src="search.svg" alt="Search" width="20" height="20">
@@ -224,7 +238,7 @@
                 </div>
             </div>
             <div class="note-content">
-                <textarea id="noteContent" class="note-textarea" placeholder="Start typing your note here..."></textarea>
+                <textarea id="noteContent" class="note-textarea" placeholder="Select a note or make a new one to continue."></textarea>
             </div>
         </div>
     </div>
@@ -446,9 +460,7 @@
             });
             searchInput.addEventListener('input', searchNotes);
             pinSubmit.addEventListener('click', handlePinSubmit);
-            menuButton.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-            });
+            menuButton.addEventListener('click', toggleSidebar);
             document.addEventListener('click', (e) => {
                 if (!searchPopup.contains(e.target) && e.target !== searchButton) {
                     searchPopup.style.display = 'none';
@@ -456,48 +468,20 @@
                 if (!summaryPopup.contains(e.target) && e.target !== summarizeButton) {
                     summaryPopup.style.display = 'none';
                 }
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuButton) {
+                    toggleSidebar();
+                }
             });
+            window.addEventListener('resize', handleResize);
         }
 
-        function searchNotes() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const filteredNotes = notes.filter(note =>
-                note.title.toLowerCase().includes(searchTerm) ||
-                note.content.toLowerCase().includes(searchTerm)
-            );
-            renderSearchResults(filteredNotes);
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
         }
 
-        function renderSearchResults(filteredNotes) {
-            const searchResults = document.getElementById('searchResults');
-            searchResults.innerHTML = '';
-            if (filteredNotes.length === 0) {
-                searchResults.innerHTML = '<p>No results found</p>';
-            } else {
-                filteredNotes.forEach(note => {
-                    const noteElement = document.createElement('div');
-                    noteElement.className = 'note-card';
-                    noteElement.innerHTML = `
-                        <h3>${note.title}</h3>
-                        <p>${note.content.substring(0, 50)}...</p>
-                    `;
-                    noteElement.addEventListener('click', () => {
-                        selectNote(note);
-                        searchPopup.style.display = 'none';
-                    });
-                    searchResults.appendChild(noteElement);
-                });
-            }
-        }
-
-        function summarizeNote() {
-            if (selectedNote) {
-                const words = selectedNote.content.split(' ');
-                const summaryWords = words.slice(0, 30).join(' ');
-                summaryContent.textContent = summaryWords + (words.length > 30 ? '...' : '');
-                summaryPopup.style.display = 'block';
-            } else {
-                alert('Please select a note to summarize');
+        function handleResize() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('open');
             }
         }
 
